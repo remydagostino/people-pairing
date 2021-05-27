@@ -19,10 +19,19 @@ type PersonStats = {
   preferences: Array<PersonPreference>
 }
 
+type RosterStats = Map<PersonName, PersonStats>;
+
+type PairingOptions = {
+  width: number;
+}
+
 export function doPairing(participants: Participants, history: MeetingHistory): Array<Pair> | null {
-  const rosterStats = generatePeopleStats(participants, history);
-  const peoplePreferences = generatePeoplePreferences(rosterStats);
-  const pairs = Matcher.pairPeople(peoplePreferences);
+  const rosterStats = generateRosterStats(participants, history);
+  const pairs = getBestFitPairs(rosterStats, { width: 1 })
+
+  if (pairs === null) {
+    return null;
+  }
 
   // Order the pairs by instigation count
   const orderedPairs = pairs.map((pair) => {
@@ -34,10 +43,10 @@ export function doPairing(participants: Participants, history: MeetingHistory): 
   return orderedPairs;
 }
 
-export function generatePeopleStats(
+export function generateRosterStats(
   participants: Participants, 
   history: MeetingHistory
-): Map<PersonName, PersonStats> {
+): RosterStats {
   const now = Date.now(); // <- TODO fix this
 
   const peopleHistory = generatePeopleHistory(history);
@@ -57,31 +66,65 @@ export function generatePeopleStats(
   }));
 }
 
+function getBestFitPairs(rosterStats: RosterStats, options: PairingOptions): Array<Pair> | null {
+  const peoplePreferences = generatePeoplePreferences(rosterStats, options);
+  const pairs = Matcher.pairPeople(peoplePreferences);
+
+  // If pairs couldn't be generated, try widening the search
+  if (pairs === null && options.width < rosterStats.size) {
+    return getBestFitPairs(rosterStats, { ...options, width: options.width + 1 })
+  }
+
+  return pairs;
+}
+
 function generatePeoplePreferences(
-  peopleStats: Map<PersonName, PersonStats>
+  peopleStats: Map<PersonName, PersonStats>,
+  options: PairingOptions
 ): Array<Person> {
   return Array.from(peopleStats.values()).map((personStats) => {
     return {
       name: personStats.name,
-      preferences: getAllTopPreferences(personStats.preferences)
+      preferences: getAllTopPreferences(personStats.preferences, options.width)
     }
   });
 }
 
-function getAllTopPreferences(preferences: Array<PersonPreference>): Array<PersonName> {
+function getAllTopPreferences(preferences: Array<PersonPreference>, width: number): Array<PersonName> {
+  return generatePreferenceHistogram(preferences)
+    .slice(0, width)
+    .reduce((acc, group) => {
+      return acc.concat(group.names);
+    }, [])
+}
+
+function generatePreferenceHistogram(preferences: Array<PersonPreference>): Array<{ score: number, names: Array<PersonName> }> {
   return preferences.reduce(
     (acc, pref) => {
-      if (pref.score >= acc.highScore) {
+      // Add to an existing group
+      if (acc.score === pref.score) {
+        const histogramFront = acc.histogram.slice(0, -1);
+        const histogramEnd = acc.histogram[acc.histogram.length - 1];
+
         return {
-          highScore: pref.score,
-          winners: acc.winners.concat(pref.name)
+          histogram: [
+            ...histogramFront, 
+            { score: histogramEnd.score, names: [...histogramEnd.names, pref.name] }
+          ],
+          score: pref.score
         };
       } else {
-        return acc;
+        return {
+          histogram: [
+            ...acc.histogram, 
+            { score: pref.score, names: [pref.name] }
+          ],
+          score: pref.score
+        };
       }
     },
-    { highScore: 0, winners: [] as Array<string> }
-  ).winners;
+    { histogram: [], score: null }
+  ).histogram;
 }
 
 function getPreferences(
@@ -108,8 +151,6 @@ function getPreferences(
       return b.score - a.score;
     });
 }
-
-
 
 function getInstigationRatio(personStats: PersonHistory): number {
   const meetingStats = Array.from(personStats.meetings.values()).reduce(

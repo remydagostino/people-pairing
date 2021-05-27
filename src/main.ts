@@ -21,7 +21,7 @@ function main(peopleFileName, historyFileName, command) {
 }
 
 function doStats(participants, history) {
-  const rosterStats = Analysis.generatePeopleStats(participants, history);
+  const rosterStats = Analysis.generateRosterStats(participants, history);
   const sortedStats = Array.from(rosterStats.values()).sort((a, b) => {
     return a.name > b.name ? 1 : -1;
   });
@@ -42,6 +42,9 @@ function doPairing(participants: Participants, history: MeetingHistory) {
 
   if (pairs !== null) {
     outputPairs(pairs, generateDateTimestamp(Date.now()));  
+  } else {
+    console.error('Could not generate pairs');
+    process.exit(1);
   }
 }
 
