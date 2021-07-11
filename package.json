@@ -7,6 +7,8 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "main": "ts-node src/main.ts",
+    "roster": "ts-node src/main.ts test-data/people.txt test-data/history.txt",
+    "stats": "ts-node src/main.ts test-data/people.txt test-data/history.txt stats",
     "compile-bin": "tsc",
     "format": "prettier --write src"
   },
