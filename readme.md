@@ -1,3 +1,15 @@
+# Getting started
+
+```
+npm install
+mkdir test-data
+touch test-data/history.txt
+touch test-data/people-list.txt
+```
+
+Fill out `people-list.txt` so that it has all the people's names who want to be part of the roster.
+
+Then run `npm run roster` any time you want to generate a list of people pairings. Take the output of this command and append it to `history.txt` to prevent future runs from generating the same pairs.
 # Instructions for generating the Beverage Buddy pairings
 
 At the start of the week, run the matcher, giving it the list of people in the rotation this week, and the history of all previous matches.
@@ -64,8 +76,7 @@ Now, in your console you will see some information you can use to help you decid
   "preferences": [
     "Infinity (0): Joe Dart",
     "18811486476 (1): Samuel Jackson",
-    "13022686476 (2): Potato Patatoe",
-    "12417886476 (1): Tomasz Gieniusz",
+    "13022686476 (2): Potato Patatoe"
   ]
 }
 ```
