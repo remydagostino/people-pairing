@@ -72,6 +72,7 @@ function getBestFitPairs(rosterStats: RosterStats, options: PairingOptions): Arr
 
   // If pairs couldn't be generated, try widening the search
   if (pairs === null && options.width < rosterStats.size) {
+    console.log(`No valid pairing found for width: ${options.width}... widening search ...`)
     return getBestFitPairs(rosterStats, { ...options, width: options.width + 1 })
   }
 
