@@ -15,7 +15,7 @@ describe('matcher', () => {
 
     const result = pairPeople([personA, personB]);
     
-    expect(result).toEqual([[personA, personB]]);
+    expect(result).toEqual([['A', 'B']]);
   });
 
   it('pairs three people (doubling the first)', () => {
@@ -25,7 +25,7 @@ describe('matcher', () => {
 
     const result = pairPeople([personA, personB, personC]);
     
-    expect(result).toEqual([[personA, personB], [personC, personA]]);
+    expect(result).toEqual([['A', 'B'], ['C', 'A']]);
   });
 
   it('pairs four perfect people', () => {
@@ -36,7 +36,7 @@ describe('matcher', () => {
 
     const result = pairPeople([personA, personB, personC, personD]);
     
-    expect(result).toEqual([[personA, personB], [personC, personD]]);
+    expect(result).toEqual([['A', 'B'], ['C', 'D']]);
   });
 
   it('pairs four backwards people', () => {
@@ -47,7 +47,7 @@ describe('matcher', () => {
 
     const result = pairPeople([personA, personB, personC, personD]);
     
-    expect(result).toEqual([[personA, personD], [personB, personC]]);
+    expect(result).toEqual([['A', 'D'], ['B', 'C']]);
   });
 
   it('fails to pair four people who are all obsessed with D', () => {
@@ -69,7 +69,7 @@ describe('matcher', () => {
 
     const result = pairPeople([personA, personB, personC, personD]);
     
-    expect(result).toEqual([[personA, personD], [personB, personC]]);
+    expect(result).toEqual([['A', 'D'], ['B', 'C']]);
   });
 
   it('pairs four people with unbalanced preferences', () => {
@@ -80,6 +80,6 @@ describe('matcher', () => {
 
     const result = pairPeople([personA, personB, personC, personD]);
     
-    expect(result).toEqual([[personA, personC], [personB, personD]]);
+    expect(result).toEqual([['A', 'C'], ['B', 'D']]);
   });
 });

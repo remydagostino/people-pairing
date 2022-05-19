@@ -32,7 +32,7 @@ describe('parser', () => {
       const peopleNames = parseHistory(['2020-01-01 Aye Bee -> Cee Dee']);
 
       expect(peopleNames).toEqual([{ 
-        date: new Date(2020, 1, 1),
+        date: new Date(2020, 0, 1),
         activePerson: 'Aye Bee',
         passivePerson: 'Cee Dee'
       }]);
