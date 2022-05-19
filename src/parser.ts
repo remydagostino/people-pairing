@@ -14,8 +14,12 @@ function parseHistoryLine(line: string, index: number): Meeting {
   const result = line.match(matcher);
 
   if (result) {
+    const year = Number(result[1]);
+    const monthIndex = Number(result[2]) - 1;
+    const day = Number(result[3]);
+
     return {
-      date: new Date(Number(result[1]), Number(result[2]), Number(result[3])),
+      date: new Date(year, monthIndex, day),
       activePerson: result[4],
       passivePerson: result[5]
     };
