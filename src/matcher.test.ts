@@ -83,6 +83,15 @@ describe('matcher', () => {
     ]);
   });
 
+  it('fails to pair four people who all hate D - no stable solution', () => {
+    const personA = { name: 'A', preferences: ['B', 'C', 'D'] };
+    const personB = { name: 'B', preferences: ['C', 'A', 'D'] };
+    const personC = { name: 'C', preferences: ['A', 'B', 'D'] };
+    const personD = { name: 'D', preferences: ['A', 'B', 'C'] };
+    const result = pairPeople([personA, personB, personC, personD]);
+    expect(result).toBe(null);
+  });
+
   it('works for the wikipedia example https://en.wikipedia.org/wiki/Stable_roommates_problem#Example', () => {
     const person1 = { name: '1', preferences: ['3', '4', '2', '6', '5'] };
     const person2 = { name: '2', preferences: ['6', '5', '4', '1', '3'] };
