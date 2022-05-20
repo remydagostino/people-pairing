@@ -36,7 +36,7 @@ export function doPairing(
   history: MeetingHistory
 ): Array<Pair> | null {
   const rosterStats = generateRosterStats(participants, history);
-  const pairs = getBestFitPairs(rosterStats, { width: 1 });
+  const pairs = getBestFitPairs(rosterStats, { width:  rosterStats.size-1});
 
   if (pairs === null) {
     return null;
@@ -51,7 +51,6 @@ export function doPairing(
       );
     });
   });
-
   return orderedPairs;
 }
 
@@ -97,7 +96,6 @@ function getBestFitPairs(
       width: options.width + 1
     });
   }
-
   return pairs;
 }
 

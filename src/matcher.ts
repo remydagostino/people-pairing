@@ -27,7 +27,6 @@ function solvePairing(
       return finalSolution;
     }
   }
-
   return null;
 }
 
@@ -66,7 +65,10 @@ function extendSolution(
   allPeople: Array<Person>
 ): Array<SolutionCandidate> {
   // Remove a pair from the unpaired people
-  const [head, ...rest] = sol.unpairedPeople;
+  const randomeIndex = Math.round(Math.random() * (sol.unpairedPeople.length-1));
+  // const [head, ...rest] = sol.unpairedPeople;
+  const rest = [...sol.unpairedPeople];
+  const [head] = rest.splice(randomeIndex, 1);
 
   // Turn each of their preferences into a solution candidate
   return head.preferences
