@@ -1,33 +1,42 @@
-import { MeetingHistory, Pair, Participants, Person, PersonName } from "./types";
+import {
+  MeetingHistory,
+  Pair,
+  Participants,
+  Person,
+  PersonName
+} from './types';
 import * as Matcher from './matcher';
 
 type PersonHistory = {
-  name: PersonName,
-  meetings: Map<PersonName, Array<{ on: Date, instigator: boolean}>>
-}
+  name: PersonName;
+  meetings: Map<PersonName, Array<{ on: Date; instigator: boolean }>>;
+};
 
 type PersonPreference = {
-  name: PersonName,
-  count: number,
-  score: number
-}
+  name: PersonName;
+  count: number;
+  score: number;
+};
 
 type PersonStats = {
-  name: PersonName,
-  totalMeetings: number,
-  instigationRatio: number,
-  preferences: Array<PersonPreference>
-}
+  name: PersonName;
+  totalMeetings: number;
+  instigationRatio: number;
+  preferences: Array<PersonPreference>;
+};
 
 type RosterStats = Map<PersonName, PersonStats>;
 
 type PairingOptions = {
   width: number;
-}
+};
 
-export function doPairing(participants: Participants, history: MeetingHistory): Array<Pair> | null {
+export function doPairing(
+  participants: Participants,
+  history: MeetingHistory
+): Array<Pair> | null {
   const rosterStats = generateRosterStats(participants, history);
-  const pairs = getBestFitPairs(rosterStats, { width: 1 })
+  const pairs = getBestFitPairs(rosterStats, { width: 1 });
 
   if (pairs === null) {
     return null;
@@ -36,7 +45,10 @@ export function doPairing(participants: Participants, history: MeetingHistory): 
   // Order the pairs by instigation count
   const orderedPairs = pairs.map((pair) => {
     return pair.sort((a, b) => {
-      return rosterStats.get(a).instigationRatio - rosterStats.get(b).instigationRatio;
+      return (
+        rosterStats.get(a).instigationRatio -
+        rosterStats.get(b).instigationRatio
+      );
     });
   });
 
@@ -44,36 +56,46 @@ export function doPairing(participants: Participants, history: MeetingHistory): 
 }
 
 export function generateRosterStats(
-  participants: Participants, 
+  participants: Participants,
   history: MeetingHistory
 ): RosterStats {
   const now = Date.now(); // <- TODO fix this
 
   const peopleHistory = generatePeopleHistory(history);
 
-  return new Map(participants.map((person) => {
-    const stats = getHistoryWithDefault(peopleHistory, person);
+  return new Map(
+    participants.map((person) => {
+      const stats = getHistoryWithDefault(peopleHistory, person);
 
-    return [
-      person, 
-      {
-        name: person,
-        totalMeetings: stats.meetings.size,
-        instigationRatio: getInstigationRatio(stats),
-        preferences: getPreferences(stats, participants, now)
-      }
-    ];
-  }));
+      return [
+        person,
+        {
+          name: person,
+          totalMeetings: stats.meetings.size,
+          instigationRatio: getInstigationRatio(stats),
+          preferences: getPreferences(stats, participants, now)
+        }
+      ];
+    })
+  );
 }
 
-function getBestFitPairs(rosterStats: RosterStats, options: PairingOptions): Array<Pair> | null {
+function getBestFitPairs(
+  rosterStats: RosterStats,
+  options: PairingOptions
+): Array<Pair> | null {
   const peoplePreferences = generatePeoplePreferences(rosterStats, options);
   const pairs = Matcher.pairPeople(peoplePreferences);
 
   // If pairs couldn't be generated, try widening the search
   if (pairs === null && options.width < rosterStats.size) {
-    console.log(`No valid pairing found for width: ${options.width}... widening search ...`)
-    return getBestFitPairs(rosterStats, { ...options, width: options.width + 1 })
+    console.log(
+      `No valid pairing found for width: ${options.width}... widening search ...`
+    );
+    return getBestFitPairs(rosterStats, {
+      ...options,
+      width: options.width + 1
+    });
   }
 
   return pairs;
@@ -87,19 +109,24 @@ function generatePeoplePreferences(
     return {
       name: personStats.name,
       preferences: getAllTopPreferences(personStats.preferences, options.width)
-    }
+    };
   });
 }
 
-function getAllTopPreferences(preferences: Array<PersonPreference>, width: number): Array<PersonName> {
+function getAllTopPreferences(
+  preferences: Array<PersonPreference>,
+  width: number
+): Array<PersonName> {
   return generatePreferenceHistogram(preferences)
     .slice(0, width)
     .reduce((acc, group) => {
       return acc.concat(group.names);
-    }, [])
+    }, []);
 }
 
-function generatePreferenceHistogram(preferences: Array<PersonPreference>): Array<{ score: number, names: Array<PersonName> }> {
+function generatePreferenceHistogram(
+  preferences: Array<PersonPreference>
+): Array<{ score: number; names: Array<PersonName> }> {
   return preferences.reduce(
     (acc, pref) => {
       // Add to an existing group
@@ -109,15 +136,18 @@ function generatePreferenceHistogram(preferences: Array<PersonPreference>): Arra
 
         return {
           histogram: [
-            ...histogramFront, 
-            { score: histogramEnd.score, names: [...histogramEnd.names, pref.name] }
+            ...histogramFront,
+            {
+              score: histogramEnd.score,
+              names: [...histogramEnd.names, pref.name]
+            }
           ],
           score: pref.score
         };
       } else {
         return {
           histogram: [
-            ...acc.histogram, 
+            ...acc.histogram,
             { score: pref.score, names: [pref.name] }
           ],
           score: pref.score
@@ -129,8 +159,8 @@ function generatePreferenceHistogram(preferences: Array<PersonPreference>): Arra
 }
 
 function getPreferences(
-  stats: PersonHistory, 
-  people: Array<PersonName>, 
+  stats: PersonHistory,
+  people: Array<PersonName>,
   now: number
 ): Array<PersonPreference> {
   return people
@@ -143,7 +173,7 @@ function getPreferences(
         count: meetings.length,
         // A higher score means more time between now and the last meeting
         score: meetings.reduce(
-          (acc, meeting) => Math.min(acc, now - meeting.on.getTime()), 
+          (acc, meeting) => Math.min(acc, now - meeting.on.getTime()),
           Infinity
         )
       };
@@ -158,9 +188,14 @@ function getInstigationRatio(personStats: PersonHistory): number {
     (acc, meetingList) => {
       return {
         total: acc.total + meetingList.length,
-        instigations: acc.instigations + meetingList.reduce((acc2, { instigator }) => acc2 + (instigator ? 1 : 0), 0)
-      }
-    }, 
+        instigations:
+          acc.instigations +
+          meetingList.reduce(
+            (acc2, { instigator }) => acc2 + (instigator ? 1 : 0),
+            0
+          )
+      };
+    },
     {
       total: 0,
       instigations: 0
@@ -170,36 +205,50 @@ function getInstigationRatio(personStats: PersonHistory): number {
   return meetingStats.instigations / meetingStats.total;
 }
 
-function getHistoryWithDefault(map: Map<PersonName, PersonHistory>, id: PersonName): PersonHistory {
+function getHistoryWithDefault(
+  map: Map<PersonName, PersonHistory>,
+  id: PersonName
+): PersonHistory {
   return map.has(id) ? map.get(id) : { name: id, meetings: new Map() };
 }
 
-function generatePeopleHistory(historyPairs: MeetingHistory): Map<PersonName, PersonHistory> {
-  return historyPairs.reduce(
-    (acc, { date, activePerson, passivePerson }) => {
-      const activePersonStats = getHistoryWithDefault(acc, activePerson);
-      const passivePersonStats = getHistoryWithDefault(acc, passivePerson);
+function generatePeopleHistory(
+  historyPairs: MeetingHistory
+): Map<PersonName, PersonHistory> {
+  return historyPairs.reduce((acc, { date, activePerson, passivePerson }) => {
+    const activePersonStats = getHistoryWithDefault(acc, activePerson);
+    const passivePersonStats = getHistoryWithDefault(acc, passivePerson);
 
-      const updatedFrom = Object.assign({}, activePersonStats, { 
-        meetings: new Map([
-          ...Array.from(activePersonStats.meetings), 
-          [passivePerson, (activePersonStats.meetings.get(passivePerson) || []).concat({ on: date, instigator: true })]
-        ])
-      });
+    const updatedFrom = Object.assign({}, activePersonStats, {
+      meetings: new Map([
+        ...Array.from(activePersonStats.meetings),
+        [
+          passivePerson,
+          (activePersonStats.meetings.get(passivePerson) || []).concat({
+            on: date,
+            instigator: true
+          })
+        ]
+      ])
+    });
 
-      const updatedTo = Object.assign({}, passivePersonStats, { 
-        meetings: new Map([
-          ...Array.from(passivePersonStats.meetings), 
-          [activePerson, (passivePersonStats.meetings.get(activePerson) || []).concat({ on: date, instigator: false })]
-        ])
-      });
+    const updatedTo = Object.assign({}, passivePersonStats, {
+      meetings: new Map([
+        ...Array.from(passivePersonStats.meetings),
+        [
+          activePerson,
+          (passivePersonStats.meetings.get(activePerson) || []).concat({
+            on: date,
+            instigator: false
+          })
+        ]
+      ])
+    });
 
-      return new Map([
-        ...Array.from(acc),
-        [activePerson, updatedFrom],
-        [passivePerson, updatedTo]
-      ]);
-    },
-    new Map<PersonName, PersonHistory>()
-  );
+    return new Map([
+      ...Array.from(acc),
+      [activePerson, updatedFrom],
+      [passivePerson, updatedTo]
+    ]);
+  }, new Map<PersonName, PersonHistory>());
 }

@@ -31,11 +31,13 @@ describe('parser', () => {
     it('extracts history items', () => {
       const peopleNames = parseHistory(['2020-01-01 Aye Bee -> Cee Dee']);
 
-      expect(peopleNames).toEqual([{ 
-        date: new Date(2020, 0, 1),
-        activePerson: 'Aye Bee',
-        passivePerson: 'Cee Dee'
-      }]);
+      expect(peopleNames).toEqual([
+        {
+          date: new Date(2020, 0, 1),
+          activePerson: 'Aye Bee',
+          passivePerson: 'Cee Dee'
+        }
+      ]);
     });
   });
 });

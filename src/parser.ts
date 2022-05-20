@@ -9,7 +9,7 @@ export function parseHistory(lines: Array<string>): MeetingHistory {
 }
 
 function parseHistoryLine(line: string, index: number): Meeting {
-  const matcher = /^(\d{4})-(\d{2})-(\d{2})\s(.*?)\s->\s(.*?)$/
+  const matcher = /^(\d{4})-(\d{2})-(\d{2})\s(.*?)\s->\s(.*?)$/;
 
   const result = line.match(matcher);
 

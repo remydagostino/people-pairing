@@ -4,7 +4,6 @@ import { parsePeople, parseHistory } from './parser';
 import { MeetingHistory, Pair, Participants } from './types';
 import * as Analysis from './analysis';
 
-
 function main(peopleFileName, historyFileName, command) {
   const peopleFileContents = readFileSync(peopleFileName).toString();
   const historyFileContents = readFileSync(historyFileName).toString();
@@ -41,7 +40,7 @@ function doPairing(participants: Participants, history: MeetingHistory) {
   const pairs = Analysis.doPairing(participants, history);
 
   if (pairs !== null) {
-    outputPairs(pairs, generateDateTimestamp(Date.now()));  
+    outputPairs(pairs, generateDateTimestamp(Date.now()));
   } else {
     console.error('Could not generate pairs');
     process.exit(1);
@@ -50,7 +49,9 @@ function doPairing(participants: Participants, history: MeetingHistory) {
 
 function outputPairs(pairs: Array<Pair>, prefix: string) {
   pairs.forEach((pair) => {
-    process.stdout.write([prefix, `${pair[0]} -> ${pair[1]}\n`].filter(Boolean).join(' '));
+    process.stdout.write(
+      [prefix, `${pair[0]} -> ${pair[1]}\n`].filter(Boolean).join(' ')
+    );
   });
 }
 
