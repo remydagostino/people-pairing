@@ -1,3 +1,4 @@
+import { pairPeople } from './matcher';
 import {
   MeetingHistory,
   Pair,
@@ -5,7 +6,6 @@ import {
   Person,
   PersonName
 } from './types';
-import { solve } from './solver';
 
 type PersonHistory = {
   name: PersonName;
@@ -72,18 +72,15 @@ export function generateRosterStats(
   );
 }
 
-function getBestFitPairs(
-  rosterStats: RosterStats,
-): Array<Pair> | null {
+function getBestFitPairs(rosterStats: RosterStats): Array<Pair> | null {
   const peoplePreferences = generatePeoplePreferences(rosterStats);
-  const preferenceMap = peoplePreferences.reduce((acc, person) => {acc[person.name] =  person.preferences; return acc}, {});
-  const solution = solve({student_prefs: [preferenceMap]});
+  const solution = pairPeople(peoplePreferences);
 
-  return solution.matching;
+  return solution;
 }
 
 function generatePeoplePreferences(
-  peopleStats: Map<PersonName, PersonStats>,
+  peopleStats: Map<PersonName, PersonStats>
 ): Array<Person> {
   return Array.from(peopleStats.values()).map((personStats) => {
     return {
@@ -96,10 +93,9 @@ function generatePeoplePreferences(
 function getAllTopPreferences(
   preferences: Array<PersonPreference>
 ): Array<PersonName> {
-  return generatePreferenceHistogram(preferences)
-    .reduce((acc, group) => {
-      return acc.concat(group.names);
-    }, []);
+  return generatePreferenceHistogram(preferences).reduce((acc, group) => {
+    return acc.concat(group.names);
+  }, []);
 }
 
 function generatePreferenceHistogram(
