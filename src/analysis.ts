@@ -5,7 +5,7 @@ import {
   Person,
   PersonName
 } from './types';
-import * as Matcher from './matcher';
+import { solve } from './solver';
 
 type PersonHistory = {
   name: PersonName;
@@ -27,20 +27,12 @@ type PersonStats = {
 
 type RosterStats = Map<PersonName, PersonStats>;
 
-type PairingOptions = {
-  width: number;
-};
-
 export function doPairing(
   participants: Participants,
   history: MeetingHistory
 ): Array<Pair> | null {
   const rosterStats = generateRosterStats(participants, history);
-  const pairs = getBestFitPairs(rosterStats, { width: 1 });
-
-  if (pairs === null) {
-    return null;
-  }
+  const pairs = getBestFitPairs(rosterStats);
 
   // Order the pairs by instigation count
   const orderedPairs = pairs.map((pair) => {
@@ -82,43 +74,29 @@ export function generateRosterStats(
 
 function getBestFitPairs(
   rosterStats: RosterStats,
-  options: PairingOptions
 ): Array<Pair> | null {
-  const peoplePreferences = generatePeoplePreferences(rosterStats, options);
-  const pairs = Matcher.pairPeople(peoplePreferences);
+  const peoplePreferences = generatePeoplePreferences(rosterStats);
+  const preferenceMap = peoplePreferences.reduce((acc, person) => {acc[person.name] =  person.preferences; return acc}, {});
+  const solution = solve({student_prefs: [preferenceMap]});
 
-  // If pairs couldn't be generated, try widening the search
-  if (pairs === null && options.width < rosterStats.size) {
-    console.log(
-      `No valid pairing found for width: ${options.width}... widening search ...`
-    );
-    return getBestFitPairs(rosterStats, {
-      ...options,
-      width: options.width + 1
-    });
-  }
-
-  return pairs;
+  return solution.matching;
 }
 
 function generatePeoplePreferences(
   peopleStats: Map<PersonName, PersonStats>,
-  options: PairingOptions
 ): Array<Person> {
   return Array.from(peopleStats.values()).map((personStats) => {
     return {
       name: personStats.name,
-      preferences: getAllTopPreferences(personStats.preferences, options.width)
+      preferences: getAllTopPreferences(personStats.preferences)
     };
   });
 }
 
 function getAllTopPreferences(
-  preferences: Array<PersonPreference>,
-  width: number
+  preferences: Array<PersonPreference>
 ): Array<PersonName> {
   return generatePreferenceHistogram(preferences)
-    .slice(0, width)
     .reduce((acc, group) => {
       return acc.concat(group.names);
     }, []);
