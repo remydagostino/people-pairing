@@ -7,10 +7,16 @@ export type Person = {
 
 export type Pair = [PersonName, PersonName];
 
-export type SolutionCandidate = {
-  unpairedPeople: Array<Person>;
-  pairs: Array<Pair>;
+export type PersonStates = {
+  acceptedProposalFrom?: PersonName;
+  preferences: PersonName[];
 };
+
+export type PeopleStates = {
+  [key: PersonName]: PersonStates;
+};
+
+export type Loop = Array<Pair>;
 
 export type Meeting = {
   date: Date;
@@ -21,3 +27,5 @@ export type Meeting = {
 export type Participants = Array<string>;
 
 export type MeetingHistory = Array<Meeting>;
+
+export type Solution = Array<Pair>;
