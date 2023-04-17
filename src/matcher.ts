@@ -59,22 +59,22 @@ const phase1 = (states: PeopleStates) => {
     const bestMatch = states[proposer].preferences[0];
 
     if (bestMatch === undefined) {
-      console.log(
+      writeLog(
         `everyone rejected ${proposer} and they don't have any more preferences, failed to find a matching`
       );
       return null;
     }
 
-    console.log(`${proposer} proposes to ${bestMatch}`);
+    writeLog(`${proposer} proposes to ${bestMatch}`);
     if (betterThanCurrentProposal(states[bestMatch], proposer)) {
-      console.log(`${bestMatch} accepts ${proposer}'s proposal`);
+      writeLog(`${bestMatch} accepts ${proposer}'s proposal`);
 
       const previousProposal = states[bestMatch].acceptedProposalFrom;
 
       proposers.shift();
 
       if (previousProposal) {
-        console.log(
+        writeLog(
           `${bestMatch} retrospectively rejects ${previousProposal}'s proposal`
         );
 
@@ -88,7 +88,7 @@ const phase1 = (states: PeopleStates) => {
     } else {
       // proposer's bestMatch has already accepted a better proposal than proposer
 
-      console.log(`${bestMatch} rejects ${proposer}'s proposal`);
+      writeLog(`${bestMatch} rejects ${proposer}'s proposal`);
       removeMutuallyFromPreference(states, proposer, bestMatch);
     }
   }
@@ -101,7 +101,7 @@ const cleanWorsePreferences = (states: PeopleStates) => {
     const proposer = state.acceptedProposalFrom;
     const proposerIndex = state.preferences.indexOf(proposer);
 
-    console.log(
+    writeLog(
       `${person}'s best proposal was from ${proposer}, removing less prefered people from their preferences`
     );
 
@@ -121,11 +121,11 @@ const phase2 = (states: PeopleStates) => {
   while (true) {
     const loop = findLoop(states);
     if (!loop) {
-      console.log(`No loops remaining`);
+      writeLog(`No loops remaining`);
       return null;
     }
 
-    console.log(`found loop: ${JSON.stringify(loop)}, reducing preferences`);
+    writeLog(`found loop: ${JSON.stringify(loop)}, reducing preferences`);
     loop.forEach((pair) =>
       removeMutuallyFromPreference(states, pair[0], pair[1])
     );
@@ -163,7 +163,7 @@ const findLoop = (states: PeopleStates): Loop => {
     q.push(nextQ);
     nextP = states[nextQ].preferences[states[nextQ].preferences.length - 1];
 
-    // console.log(`p = ${p}; q = ${q}; nextP = ${nextP}`);
+    // writeLog(`p = ${p}; q = ${q}; nextP = ${nextP}`);
   }
 };
 
@@ -201,7 +201,7 @@ const verifySolution = (states: PeopleStates): boolean => {
   Object.keys(states).forEach((person) => {
     if (states[person].preferences.length !== 1) {
       valid = false;
-      console.log(
+      writeLog(
         `invalid final preference: ${person} - ${states[person].preferences}`
       );
     }
@@ -228,3 +228,8 @@ const fixOddDoppelganger = (result: Solution): Solution => {
     (pair) => pair.map((p) => p.replace(' (doppelganger)', '')) as Pair
   );
 };
+
+const writeLog = (...args) => {
+  return undefined;
+  // return console.log(...args);
+}
