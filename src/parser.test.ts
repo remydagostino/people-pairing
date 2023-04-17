@@ -19,6 +19,12 @@ describe('parser', () => {
 
       expect(peopleNames).toEqual(['Aye Bee', 'Cee Dee']);
     });
+
+    it('trims people names', () => {
+      const peopleNames = parsePeople(['foo  ', 'fizz']);
+
+      expect(peopleNames).toEqual(['foo', 'fizz']);
+    });
   });
 
   describe('parseHistory', () => {

@@ -1,7 +1,7 @@
 import { Participants, MeetingHistory, Meeting } from './types';
 
 export function parsePeople(lines: Array<string>): Participants {
-  return Array.from(new Set(removeComments(removeBlankLines(lines))));
+  return Array.from(new Set(removeComments(removeBlankLines(lines.map(name => name.trim())))));
 }
 
 export function parseHistory(lines: Array<string>): MeetingHistory {
