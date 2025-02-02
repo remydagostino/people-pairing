@@ -48,7 +48,9 @@ function doPairing(participants: Participants, history: MeetingHistory) {
 }
 
 function outputPairs(pairs: Array<Pair>, prefix: string) {
-  pairs.forEach((pair) => {
+  const sortedPairs = pairs.concat().sort((a, b) => a > b ? 1 : -1);
+
+  sortedPairs.forEach((pair) => {
     process.stdout.write(
       [prefix, `${pair[0]} -> ${pair[1]}\n`].filter(Boolean).join(' ')
     );
